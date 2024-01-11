@@ -60,8 +60,7 @@
     <div id="dropzone"></div>
 
     <!-- Lottie Animation Script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.8/lottie.min.js"></script>
-    <script src="image-processing.js"></script>   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.8/lottie.min.js"></script> 
     <script>
 
     // Your Lottie animation container
@@ -86,13 +85,13 @@
 
 
 // Initialize the second Lottie animation with consistent size settings
-const secondAnimation = lottie.loadAnimation({
-    container: secondAnimationContainer,
-    renderer: 'svg',
-    loop: true,
-    autoplay: false,
-    path: 'drugaczesc.json' // Path to the second animation file
-});
+    const secondAnimation = lottie.loadAnimation({
+        container: secondAnimationContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: false,
+        path: 'drugaczesc.json' // Path to the second animation file
+    });
 
 
 
@@ -160,11 +159,24 @@ const draggable = document.getElementById('draggable');
 let draggableWidth = draggable.naturalWidth;
 let draggableHeight = draggable.naturalHeight;
 
-draggable.addEventListener('mousedown', function(event) {
+// Existing mousedown event listener
+draggable.addEventListener('mousedown', startDrag);
+
+// New touchstart event listener
+draggable.addEventListener('touchstart', startDrag);
+
+function startDrag(event) {
     event.preventDefault();
 
-    let shiftX = event.clientX - draggable.getBoundingClientRect().left;
-    let shiftY = event.clientY - draggable.getBoundingClientRect().top;
+    let shiftX, shiftY;
+
+    if(event.type === 'touchstart') {
+        shiftX = event.touches[0].clientX - draggable.getBoundingClientRect().left;
+        shiftY = event.touches[0].clientY - draggable.getBoundingClientRect().top;
+    } else { // mousedown
+        shiftX = event.clientX - draggable.getBoundingClientRect().left;
+        shiftY = event.clientY - draggable.getBoundingClientRect().top;
+    }
 
     function moveAt(pageX, pageY) {
         draggable.style.left = pageX - shiftX + 'px';
@@ -175,23 +187,40 @@ draggable.addEventListener('mousedown', function(event) {
         moveAt(event.pageX, event.pageY);
     }
 
-    document.addEventListener('mousemove', onMouseMove);
-
-    draggable.onmouseup = function(event) {
-    document.removeEventListener('mousemove', onMouseMove);
-    draggable.onmouseup = null;
-
-    if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
-        switchAnimation(function() {
-            draggable.style.display = 'none'; // Hide the draggable element
-        });
+    function onTouchMove(event) {
+        moveAt(event.touches[0].pageX, event.touches[0].pageY);
     }
-};
-});
+
+    if(event.type === 'touchstart') {
+        document.addEventListener('touchmove', onTouchMove);
+    } else {
+        document.addEventListener('mousemove', onMouseMove);
+    }
+
+    function endDrag() {
+        if(event.type === 'touchend') {
+            document.removeEventListener('touchmove', onTouchMove);
+        } else {
+            document.removeEventListener('mousemove', onMouseMove);
+        }
+        draggable.onmouseup = null;
+        draggable.ontouchend = null;
+
+        if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
+            switchAnimation(function() {
+                draggable.style.display = 'none'; // Hide the draggable element
+            });
+        }
+    }
+
+    draggable.onmouseup = endDrag;
+    draggable.ontouchend = endDrag;
+}
 
 draggable.ondragstart = function() {
     return false;
 };
+
 
 
 
