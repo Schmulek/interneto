@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottie Animation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #lottie-animation, .second-animation-container {
+            width: 100vw; 
+            height: 100vh; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #f0f0f0; /* For visibility */
+        }
+
+        #draggable {
+            width: 20px; /* Smaller size */
+            height: 20px; /* Smaller size */
+            background-color: blue;
+            position: absolute;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        #dropzone {
+            width: 50px;
+            height: 50px;
+            border: 0px dashed rgb(145, 42, 42);
+            position: absolute;
+            top: 23%; /* Center vertically */
+            left: 47%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Adjust for center */
+            z-index: 1000;
+
+}
+        #lottie-animation, .second-animation-container {
+            width: 100vw; /* Adjust to your desired width */
+            height: 100vh; /* Adjust to your desired height */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <img id="draggable" src="orzech.jpg" alt="Draggable Image">
+
+    <div id="lottie-animation"></div>
+    <div id="second-animation" style="display: none;"></div> <!-- New div for second animation -->
+    <div id="dropzone"></div>
+
+    <!-- Lottie Animation Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.8/lottie.min.js"></script>
+    <script src="image-processing.js"></script>   
+    <script>
+
+    // Your Lottie animation container
+    const container = document.getElementById('lottie-animation');
+
+    // Initialize the first Lottie animation
+    const initialAnimation = lottie.loadAnimation({
+        container: container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: false, // Start playing immediately
+        path: 'szupek.json' // Path to the initial animation file
+    });
+
+    // Create a container for the second animation and apply consistent styling
+    const secondAnimationContainer = document.createElement('div');
+    secondAnimationContainer.className = 'second-animation-container';
+    secondAnimationContainer.style.display = 'none'; // Initially hidden
+    container.parentNode.insertBefore(secondAnimationContainer, container.nextSibling);
+
+
+
+
+// Initialize the second Lottie animation with consistent size settings
+const secondAnimation = lottie.loadAnimation({
+    container: secondAnimationContainer,
+    renderer: 'svg',
+    loop: true,
+    autoplay: false,
+    path: 'drugaczesc.json' // Path to the second animation file
+});
+
+
+
+    // Function to switch animations
+    function switchAnimation(callback) {
+    container.style.display = 'none'; // Hide the first animation
+    secondAnimationContainer.style.display = 'block'; // Show the second animation container
+    secondAnimation.play(); // Start playing the second animation
+
+    if (callback && typeof callback === 'function') {
+        setTimeout(callback, 0); // Execute callback after the current call stack clears
+    }
+}
+// Function to update animation frame based on mouse position
+function updateAnimationFrame(event) {
+    const bounds = container.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    const centerX = bounds.width / 2;
+    const centerY = bounds.height / 2;
+    const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+    const maxDistance = Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2));
+    const frame = (distance / maxDistance) * 22 + 17;
+    initialAnimation.goToAndStop(frame, true);
+}
+
+// Add mousemove event listener
+document.addEventListener('mousemove', updateAnimationFrame);
+
+function isInsideDropZone(element, dropzone) {
+    const elementRect = element.getBoundingClientRect();
+    const dropzoneRect = dropzone.getBoundingClientRect();
+
+    const elementCenterX = elementRect.left + elementRect.width / 2;
+    const elementCenterY = elementRect.top + elementRect.height / 2;
+
+    console.log("Draggable:", elementRect);
+    console.log("Dropzone:", dropzoneRect);
+    return (
+        elementCenterX >= dropzoneRect.left &&
+        elementCenterX <= dropzoneRect.right &&
+        elementCenterY >= dropzoneRect.top &&
+        elementCenterY <= dropzoneRect.bottom
+    );
+
+}
+
+
+// Function to play the new Lottie animation after drag and drop
+function playNewAnimation() {
+    initialAnimation.destroy(); // Destroy the initial animation
+    lottie.loadAnimation({
+        container: container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'drugaczesc.json' // Path to the new animation file
+    });
+}
+
+// Draggable element logic
+const draggable = document.getElementById('draggable');
+
+// Use the image's natural width and height as its dimensions
+let draggableWidth = draggable.naturalWidth;
+let draggableHeight = draggable.naturalHeight;
+
+draggable.addEventListener('mousedown', function(event) {
+    event.preventDefault();
+
+    let shiftX = event.clientX - draggable.getBoundingClientRect().left;
+    let shiftY = event.clientY - draggable.getBoundingClientRect().top;
+
+    function moveAt(pageX, pageY) {
+        draggable.style.left = pageX - shiftX + 'px';
+        draggable.style.top = pageY - shiftY + 'px';
+    }
+
+    function onMouseMove(event) {
+        moveAt(event.pageX, event.pageY);
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+
+    draggable.onmouseup = function(event) {
+    document.removeEventListener('mousemove', onMouseMove);
+    draggable.onmouseup = null;
+
+    if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
+        switchAnimation(function() {
+            draggable.style.display = 'none'; // Hide the draggable element
+        });
+    }
+};
+});
+
+draggable.ondragstart = function() {
+    return false;
+};
+
+
+
+    </script>
+</body>
+</html>
