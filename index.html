@@ -138,19 +138,19 @@ function isInsideDropZone(element, dropzone) {
     const elementRect = element.getBoundingClientRect();
     const dropzoneRect = dropzone.getBoundingClientRect();
 
+    // Calculate the center of the draggable element
     const elementCenterX = elementRect.left + elementRect.width / 2;
     const elementCenterY = elementRect.top + elementRect.height / 2;
 
-    console.log("Draggable:", elementRect);
-    console.log("Dropzone:", dropzoneRect);
+    // Check if the center of the draggable element is inside the dropzone
     return (
         elementCenterX >= dropzoneRect.left &&
         elementCenterX <= dropzoneRect.right &&
         elementCenterY >= dropzoneRect.top &&
         elementCenterY <= dropzoneRect.bottom
     );
-
 }
+
 
 
 // Function to play the new Lottie animation after drag and drop
