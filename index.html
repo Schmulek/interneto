@@ -105,11 +105,21 @@
         setTimeout(callback, 0); // Execute callback after the current call stack clears
     }
 }
-// Function to update animation frame based on mouse position
+// Updated function to handle both mouse and touch movement
 function updateAnimationFrame(event) {
+    let clientX, clientY;
+
+    if(event.type === 'touchmove') {
+        clientX = event.touches[0].clientX;
+        clientY = event.touches[0].clientY;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+
     const bounds = container.getBoundingClientRect();
-    const x = event.clientX - bounds.left;
-    const y = event.clientY - bounds.top;
+    const x = clientX - bounds.left;
+    const y = clientY - bounds.top;
     const centerX = bounds.width / 2;
     const centerY = bounds.height / 2;
     const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
@@ -117,6 +127,9 @@ function updateAnimationFrame(event) {
     const frame = (distance / maxDistance) * 22 + 17;
     initialAnimation.goToAndStop(frame, true);
 }
+
+// Add touchmove event listener for animation frame update
+document.addEventListener('touchmove', updateAnimationFrame);
 
 // Add mousemove event listener
 document.addEventListener('mousemove', updateAnimationFrame);
@@ -197,21 +210,23 @@ function startDrag(event) {
         document.addEventListener('mousemove', onMouseMove);
     }
 
-    function endDrag() {
-        if(event.type === 'touchend') {
-            document.removeEventListener('touchmove', onTouchMove);
-        } else {
-            document.removeEventListener('mousemove', onMouseMove);
-        }
-        draggable.onmouseup = null;
-        draggable.ontouchend = null;
+    function endDrag(event) {
+    // Remove event listeners
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('touchmove', onTouchMove);
 
-        if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
-            switchAnimation(function() {
-                draggable.style.display = 'none'; // Hide the draggable element
-            });
-        }
+    draggable.onmouseup = null;
+    draggable.ontouchend = null;
+
+    // Check if the draggable is inside the dropzone
+    if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
+        switchAnimation(function() {
+            draggable.style.display = 'none'; // Hide the draggable element
+        });
     }
+    }
+
+    
 
     draggable.onmouseup = endDrag;
     draggable.ontouchend = endDrag;
@@ -220,6 +235,7 @@ function startDrag(event) {
 draggable.ondragstart = function() {
     return false;
 };
+
 
 
 
