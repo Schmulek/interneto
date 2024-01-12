@@ -13,7 +13,7 @@
         }
 
         #lottie-animation, .second-animation-container {
-            width: 100vw; 
+            width: 80vw; 
             height: 100vh; 
             position: absolute;
             top: 0;
@@ -41,12 +41,16 @@
             z-index: 1000;
 
 }
-        #lottie-animation, .second-animation-container {
-            width: 100vw; /* Adjust to your desired width */
-            height: 100vh; /* Adjust to your desired height */
+        #lottie-animation {
+            width: 80vw; /* Adjust width as per requirement */
+            height: 45vw; /* Adjust height based on aspect ratio of animation */
+            max-width: 100%; /* Ensure it doesn't exceed screen width */
+            max-height: 100vh; /* Ensure it doesn't exceed screen height */
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the animation */
+            background-color: #f0f0f0; /* For visibility */
         }
     </style>
 </head>
@@ -63,6 +67,61 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.8/lottie.min.js"></script> 
     <script>
 
+function positionDropzone() {
+    // Get the position and dimensions of the animation container
+    const animationRect = container.getBoundingClientRect();
+
+    // Define size as a percentage of the container's dimensions
+    const sizeWidthPercent = 5; // 20% of container's width
+    const sizeHeightPercent = 10; // 20% of container's height
+
+    // Calculate the actual size in pixels
+    const dropzoneWidth = animationRect.width * (sizeWidthPercent / 100);
+    const dropzoneHeight = animationRect.height * (sizeHeightPercent / 100);
+
+    // Define offsets as a percentage of the container's dimensions
+    const offsetXPercent = 47; // 10% of container's width
+    const offsetYPercent = 23; // 10% of container's height
+
+    // Calculate the actual offsets in pixels
+    const offsetX = animationRect.width * (offsetXPercent / 100);
+    const offsetY = animationRect.height * (offsetYPercent / 100);
+
+    // Calculate the position of the dropzone
+    const dropzoneX = animationRect.left + offsetX;
+    const dropzoneY = animationRect.top + offsetY;
+
+    // Set the position and size of the dropzone
+    const dropzone = document.getElementById('dropzone');
+    dropzone.style.left = dropzoneX + 'px';
+    dropzone.style.top = dropzoneY + 'px';
+    dropzone.style.width = dropzoneWidth + 'px';
+    dropzone.style.height = dropzoneHeight + 'px';
+}
+
+// Ensure the function is called when the page loads and on window resize
+window.onload = positionDropzone;
+window.addEventListener('resize', positionDropzone);
+
+
+
+// Ensure the function is called when the page loads and on window resize
+window.onload = positionDropzone;
+window.addEventListener('resize', positionDropzone);
+
+
+    window.onload = function() {
+        positionDropzone();
+
+    };
+    // Reposition the dropzone when the window is resized
+    window.addEventListener('resize', positionDropzone);
+   
+    </script>
+    
+    
+    <script>
+
     // Your Lottie animation container
     const container = document.getElementById('lottie-animation');
 
@@ -74,6 +133,7 @@
         autoplay: false, // Start playing immediately
         path: 'szupek.json' // Path to the initial animation file
     });
+
 
     // Create a container for the second animation and apply consistent styling
     const secondAnimationContainer = document.createElement('div');
@@ -133,6 +193,7 @@ document.addEventListener('touchmove', updateAnimationFrame);
 
 // Add mousemove event listener
 document.addEventListener('mousemove', updateAnimationFrame);
+
 
 function isInsideDropZone(element, dropzone) {
     const elementRect = element.getBoundingClientRect();
@@ -235,6 +296,7 @@ function startDrag(event) {
 draggable.ondragstart = function() {
     return false;
 };
+
 
 
 
