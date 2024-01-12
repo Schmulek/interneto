@@ -5,93 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lottie Animation</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        #lottie-animation, .second-animation-container {
-            width: 80vw; 
-            height: 100vh; 
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #f0f0f0; /* For visibility */
-        }
-
-        #draggable {
-            width: 20px; /* Smaller size */
-            height: 20px; /* Smaller size */
-            background-color: blue;
-            position: absolute;
-            cursor: pointer;
-            z-index: 1001;
-        }
-
-        #dropzone {
-            width: 50px;
-            height: 50px;
-            border: 0px dashed rgb(145, 42, 42);
-            position: absolute;
-            top: 23%; /* Center vertically */
-            left: 47%; /* Center horizontally */
-            transform: translate(-50%, -50%); /* Adjust for center */
-            z-index: 1000;
-
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: visible;
 }
-        #lottie-animation {
-            width: 80vw; /* Adjust width as per requirement */
-            height: 45vw; /* Adjust height based on aspect ratio of animation */
-            max-width: 100%; /* Ensure it doesn't exceed screen width */
-            max-height: 100vh; /* Ensure it doesn't exceed screen height */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* Center the animation */
-            background-color: #f0f0f0; /* For visibility */
-        }
+
+#draggable {
+    width: 20%;
+    height: 20%;
+    background-color: blue;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    cursor: pointer;
+    z-index: 1;
+}
+
+#lottie-animation {
+    width: 80%; 
+    height: 80%; /* Adjusted for aspect ratio */
+    position: fixed; /* Changed from relative to absolute */
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: transparent;
+    overflow: visible;
+    z-index: 2;
+}
+
+#second-animation {
+    position: absolute; /* Positioned absolutely within its parent */
+    top: 0;   /* Align top edge with parent's top edge */
+    left: 0;  /* Align left edge with parent's left edge */
+    width: 100%; /* Stretch to the full width of the parent */
+    height: 100%; /* Stretch to the full height of the parent */
+    /* Other styling as needed */
+}
+
+#dropzone {
+    width: 10vw;
+    height: 10vh;
+    border: 2px dashed rgb(145, 42, 42);
+    position: absolute; /* Keep as absolute */
+    right: 0; /* Align to the right */
+    bottom: 0; /* Align to the bottom */
+    z-index: 1001;
+}
+
+@media screen and (max-width: 4000px) {
+    #lottie-animation, .second-animation-container {
+        width: 100vw;
+        height: 100vh; /* Maintain the aspect ratio */
+        top: 50%;
+        left: 50%;
+    }
+}
     </style>
 </head>
 <body>
     
+    <div id="lottie-animation">
+        <div id="second-animation" style="display: none;"></div> <!-- New div for second animation -->
+        <div id="dropzone"></div>
+        <img id="draggable" src="orzech.jpg" alt="Draggable Image"></div>
 
-    <img id="draggable" src="orzech.jpg" alt="Draggable Image">
 
-    <div id="lottie-animation"></div>
-    <div id="second-animation" style="display: none;"></div> <!-- New div for second animation -->
-    <div id="dropzone"></div>
-
+   
+    
     <!-- Lottie Animation Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.8/lottie.min.js"></script> 
     <script>
+           
+    // Your Lottie animation container
 
-function positionDropzone() {
-    // Get the position and dimensions of the animation container
+    const container = document.getElementById('lottie-animation');
+
+// Create a new element for the second animation
+    const secondAnimationContainer = document.createElement('div'); // Use 'div', not 'second-animation'
+    secondAnimationContainer.className = 'second-animation-container';
+    secondAnimationContainer.style.display = 'none'; // Initially hidden
+
+    // Append to the lottie-animation container
+    container.appendChild(secondAnimationContainer);
+    function positionDropzone() {
     const animationRect = container.getBoundingClientRect();
 
-    // Define size as a percentage of the container's dimensions
-    const sizeWidthPercent = 5; // 20% of container's width
-    const sizeHeightPercent = 10; // 20% of container's height
+    const sizeWidthPercent = 5;
+    const sizeHeightPercent = 10;
 
-    // Calculate the actual size in pixels
     const dropzoneWidth = animationRect.width * (sizeWidthPercent / 100);
     const dropzoneHeight = animationRect.height * (sizeHeightPercent / 100);
 
-    // Define offsets as a percentage of the container's dimensions
-    const offsetXPercent = 47; // 10% of container's width
-    const offsetYPercent = 23; // 10% of container's height
+    const offsetXPercent = 47;
+    const offsetYPercent = 20;
 
-    // Calculate the actual offsets in pixels
     const offsetX = animationRect.width * (offsetXPercent / 100);
     const offsetY = animationRect.height * (offsetYPercent / 100);
 
-    // Calculate the position of the dropzone
-    const dropzoneX = animationRect.left + offsetX;
-    const dropzoneY = animationRect.top + offsetY;
+    const dropzoneX = animationRect.left + offsetX - window.scrollX; // Adjust for page scroll
+    const dropzoneY = animationRect.top + offsetY - window.scrollY; // Adjust for page scroll
 
-    // Set the position and size of the dropzone
     const dropzone = document.getElementById('dropzone');
     dropzone.style.left = dropzoneX + 'px';
     dropzone.style.top = dropzoneY + 'px';
@@ -99,77 +114,57 @@ function positionDropzone() {
     dropzone.style.height = dropzoneHeight + 'px';
 }
 
-// Ensure the function is called when the page loads and on window resize
-window.onload = positionDropzone;
-window.addEventListener('resize', positionDropzone);
+// Ensure the function is called on initial load and window resize
+window.onload = function() {
+    positionDropzone();
+};
+
+window.addEventListener('resize', function() {
+    positionDropzone();
+});
 
 
 
-// Ensure the function is called when the page loads and on window resize
-window.onload = positionDropzone;
-window.addEventListener('resize', positionDropzone);
-
-
-    window.onload = function() {
-        positionDropzone();
-
-    };
-    // Reposition the dropzone when the window is resized
-    window.addEventListener('resize', positionDropzone);
-   
-    </script>
-    
-    
-    <script>
-
-    // Your Lottie animation container
-    const container = document.getElementById('lottie-animation');
-
-    // Initialize the first Lottie animation
-    const initialAnimation = lottie.loadAnimation({
+        const initialAnimation = lottie.loadAnimation({
         container: container,
         renderer: 'svg',
         loop: true,
         autoplay: false, // Start playing immediately
-        path: 'szupek.json' // Path to the initial animation file
-    });
-
-
-    // Create a container for the second animation and apply consistent styling
-    const secondAnimationContainer = document.createElement('div');
-    secondAnimationContainer.className = 'second-animation-container';
-    secondAnimationContainer.style.display = 'none'; // Initially hidden
-    container.parentNode.insertBefore(secondAnimationContainer, container.nextSibling);
-
-
-
-
-// Initialize the second Lottie animation with consistent size settings
-    const secondAnimation = lottie.loadAnimation({
-        container: secondAnimationContainer,
-        renderer: 'svg',
-        loop: true,
-        autoplay: false,
-        path: 'drugaczesc.json' // Path to the second animation file
-    });
-
-
-
-    // Function to switch animations
-    function switchAnimation(callback) {
-    container.style.display = 'none'; // Hide the first animation
-    secondAnimationContainer.style.display = 'block'; // Show the second animation container
-    secondAnimation.play(); // Start playing the second animation
-
-    if (callback && typeof callback === 'function') {
-        setTimeout(callback, 0); // Execute callback after the current call stack clears
+        path: 'pierszapartia.json', // Path to the initial animation file"
+        rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice' // Adjusts the scaling
     }
-}
-// Updated function to handle both mouse and touch movement
+
+    });
+        // Initialize the second Lottie animation
+        const secondAnimation = lottie.loadAnimation({
+            container: secondAnimationContainer,
+            renderer: 'svg',
+            loop: true,
+            autoplay: false, // Start playing only when called
+            path: 'drugapartia.json',
+            rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice' // Adjusts the scaling
+    }
+    });
+    // After creating the secondAnimationContainer, add it to the document body
+    document.body.appendChild(secondAnimationContainer);
+
+
+
+function switchAnimation() {
+    console.log('Switching to second animation');
+    container.style.display = 'none'; // Hide the first animation
+    secondAnimationContainer.style.display = 'block'; // Show the second animation
+    secondAnimation.play(); // Play the second animation
+    
+} 
+
+
 function updateAnimationFrame(event) {
     let clientX, clientY;
 
-    if(event.type === 'touchmove') {
+    if (event.type === 'touchmove') {
         clientX = event.touches[0].clientX;
         clientY = event.touches[0].clientY;
     } else {
@@ -184,16 +179,19 @@ function updateAnimationFrame(event) {
     const centerY = bounds.height / 2;
     const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
     const maxDistance = Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2));
-    const frame = (distance / maxDistance) * 22 + 17;
+
+    // Calculate the frame by subtracting it from the maximum frame (20)
+    const frame = 20 - (distance / maxDistance * 20);
+    
     initialAnimation.goToAndStop(frame, true);
 }
+
 
 // Add touchmove event listener for animation frame update
 document.addEventListener('touchmove', updateAnimationFrame);
 
 // Add mousemove event listener
 document.addEventListener('mousemove', updateAnimationFrame);
-
 
 function isInsideDropZone(element, dropzone) {
     const elementRect = element.getBoundingClientRect();
@@ -212,32 +210,18 @@ function isInsideDropZone(element, dropzone) {
     );
 }
 
-
-
-// Function to play the new Lottie animation after drag and drop
-function playNewAnimation() {
-    initialAnimation.destroy(); // Destroy the initial animation
-    lottie.loadAnimation({
-        container: container,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: 'drugaczesc.json' // Path to the new animation file
-    });
-}
-
 // Draggable element logic
-const draggable = document.getElementById('draggable');
+    const draggable = document.getElementById('draggable');
 
 // Use the image's natural width and height as its dimensions
-let draggableWidth = draggable.naturalWidth;
-let draggableHeight = draggable.naturalHeight;
+    let draggableWidth = draggable.naturalWidth;
+    let draggableHeight = draggable.naturalHeight;
 
-// Existing mousedown event listener
-draggable.addEventListener('mousedown', startDrag);
+    // Existing mousedown event listener
+    draggable.addEventListener('mousedown', startDrag);
 
-// New touchstart event listener
-draggable.addEventListener('touchstart', startDrag);
+    // New touchstart event listener
+    draggable.addEventListener('touchstart', startDrag);
 
 function startDrag(event) {
     event.preventDefault();
@@ -272,26 +256,26 @@ function startDrag(event) {
     }
 
     function endDrag(event) {
-    // Remove event listeners
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('touchmove', onTouchMove);
+            // Remove event listeners
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('touchmove', onTouchMove);
 
-    draggable.onmouseup = null;
-    draggable.ontouchend = null;
+            draggable.onmouseup = null;
+            draggable.ontouchend = null;
 
-    // Check if the draggable is inside the dropzone
-    if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
-        switchAnimation(function() {
-            draggable.style.display = 'none'; // Hide the draggable element
-        });
-    }
-    }
+            // Check if the draggable is inside the dropzone
+            if (isInsideDropZone(draggable, document.getElementById('dropzone'))) {
+                draggable.style.display = 'none'; // Hide the draggable element
+                switchAnimation()
+            }
+        }
 
     
 
     draggable.onmouseup = endDrag;
     draggable.ontouchend = endDrag;
 }
+
 
 draggable.ondragstart = function() {
     return false;
